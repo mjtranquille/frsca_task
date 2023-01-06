@@ -30,11 +30,12 @@ cosign
 
  steps:
   - clone repo
-    - put secret to clone repo somewhere
+    - put secret to clone repo somewhere (vault)
   - trivy-scan-local-fs
   - build
   - test
   - kaniko build and push
+  - syft SBOM scan
 
 
 kubectl create piplinerun-file.yml to create new pipeline

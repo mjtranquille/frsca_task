@@ -1,0 +1,8 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: snsw-gitea-binding
+spec:
+  params:
+    - name: gitrevision
+      value: $(body.head_commit.id)
