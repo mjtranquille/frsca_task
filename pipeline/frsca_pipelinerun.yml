@@ -1,0 +1,32 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: snsw-pipeline-run-
+spec:
+  pipelineRef:
+    name: snsw-git-clone
+  podTemplate:
+    securityContext:
+      fsGroup: 65532
+  workspaces:
+    - name: output
+      volumeClaimTemplate:
+        spec: 
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 2Gi
+    - name: git-credentials
+      secret:
+        secretName: git-credentials
+    - name: syft-config-map
+      configMap:
+        name: syft-config-map
+  params:
+    - name: repo-url
+      value: https://gitea-http.gitea:3000/frsca/example-golang
+    - name: scan-args
+      value: [fs --exit-code 1]
+    - name: image-path
+      value: "."

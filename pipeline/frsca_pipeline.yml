@@ -1,0 +1,116 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: snsw-git-clone
+spec:
+  description: clone the repository
+  params:
+    - name: repo-url
+      type: string
+      description: the git repo url
+    - name: scan-args
+      type: array
+      description: arguments for trivy-scanner
+    - name: image-path
+      type: string
+  workspaces:
+    - name: output
+      description: output workspace
+    - name: syft-config-map
+      description: config map for syft sbom config
+  tasks:
+    - name: fetch
+      taskRef: 
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: output
+      params:
+        - name: url
+          value: $(params.repo-url)
+    - name: lint
+      runAfter: ["fetch"]
+      taskRef:
+        name: golangci-lint
+      workspaces:
+        - name: source
+          workspace: output
+      params:
+        - name: package
+          value: "." 
+    - name: unit-test
+      runAfter: ["fetch"]
+      taskRef:
+        name: golang-test
+      params:
+        - name: package
+          value: "github.com/chmouel/go-rest-api-test"
+        - name: packages
+          value: "./pkg/..."
+        - name: flags
+          value: -cover -v
+      workspaces:
+        - name: source
+          workspace: output
+    - name: build
+      runAfter: ["unit-test"]
+      taskRef:
+        name: golang-build
+      params:
+        - name: package
+          value: "."
+        - name: packages
+          value: "./"
+      workspaces:
+        - name: source
+          workspace: output
+    - name: trivy-scan-local-fs
+      runAfter: ["lint"]
+      taskRef:
+        name: trivy-scanner
+      workspaces:
+        - name: manifest-dir
+          workspace: output
+      params:
+        - name: ARGS
+          value: $(params.scan-args[*])
+        - name: IMAGE_PATH
+          value: $(params.image-path)
+    - name: build-and-push
+      runAfter: ["trivy-scan-local-fs"]
+      taskRef:
+        name: kaniko
+      workspaces:
+        - name: source
+          workspace: output
+      params:
+        - name: IMAGE
+          value: "ttl.sh/af8e3734-2353-4e6a-893b-220e4b17086/eg:$(tasks.fetch.results.commit)"
+    - name: trivy-scan-image
+      runAfter: ["build-and-push"]
+      taskRef:
+        name: trivy-scanner
+      workspaces:
+        - name: manifest-dir
+          workspace: output
+      params:
+        - name: ARGS
+          value: [image --exit-code 0]
+        - name: IMAGE_PATH
+          value: "ttl.sh/af8e3734-2353-4e6a-893b-220e4b17086/eg:$(tasks.fetch.results.commit)"
+    - name: syft-sbom
+      runAfter: ["build-and-push"]
+      taskRef:
+        name: syft-bom-generator
+      workspaces:
+        - name: source
+          workspace: output
+        - name: syft-config
+          workspace: syft-config-map
+      params:
+        - name: image-ref 
+          value: "ttl.sh/af8e3734-2353-4e6a-893b-220e4b17086/eg:$(tasks.fetch.results.commit)"
+        - name: image-digest
+          value: $(tasks.build-and-push.results.IMAGE_DIGEST)
+      
+      
