@@ -23,6 +23,12 @@ frsca:
     - tekton chains
     - kyverno
 
+software supply chain
+  - look at this
+
+oci (open container initiatives)
+  - look at this
+
 trivy
  - code anaylsis?
 crane
@@ -36,6 +42,18 @@ cosign
   - test
   - kaniko build and push
   - syft SBOM scan
+
+
+kyverno:
+  - blocks images from running if not in list
+  - kubectl describe cpol verify-image
+
+  sigstore:
+    - how to sign image?
+    - uses cmd cosign
+
+slsa.dev
+  - look at this
 
 
 kubectl create piplinerun-file.yml to create new pipeline
