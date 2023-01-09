@@ -1,0 +1,13 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: gitea-eventlistener
+spec:
+  serviceAccountName: tekton-triggers-sa
+  triggers:
+    - name: gitea-trigger-python
+      bindings:
+        - kind: TriggerBinding
+          ref: frsca-trigger-binding
+      template:
+        ref: python-trigger
