@@ -30,3 +30,5 @@ spec:
       value: [fs --exit-code 1]
     - name: image-path
       value: "."
+    - name: uuid
+      value: "af8e3734-2353-4e6a-893b-220e4b17086"

@@ -13,6 +13,8 @@ spec:
       description: arguments for trivy-scanner
     - name: image-path
       type: string
+    - name: uuid
+      type: string
   workspaces:
     - name: output
       description: output workspace
@@ -85,7 +87,7 @@ spec:
           workspace: output
       params:
         - name: IMAGE
-          value: "ttl.sh/af8e3734-2353-4e6a-893b-220e4b17086/eg:$(tasks.fetch.results.commit)"
+          value: "ttl.sh/$(params.uuid)/eg:$(tasks.fetch.results.commit)"
     - name: trivy-scan-image
       runAfter: ["build-and-push"]
       taskRef:
@@ -97,7 +99,7 @@ spec:
         - name: ARGS
           value: [image --exit-code 0]
         - name: IMAGE_PATH
-          value: "ttl.sh/af8e3734-2353-4e6a-893b-220e4b17086/eg:$(tasks.fetch.results.commit)"
+          value: "ttl.sh/$(params.uuid)/eg:$(tasks.fetch.results.commit)"
     - name: syft-sbom
       runAfter: ["build-and-push"]
       taskRef:
@@ -109,7 +111,7 @@ spec:
           workspace: syft-config-map
       params:
         - name: image-ref 
-          value: "ttl.sh/af8e3734-2353-4e6a-893b-220e4b17086/eg:$(tasks.fetch.results.commit)"
+          value: "ttl.sh/$(params.uuid)/eg:$(tasks.fetch.results.commit)"
         - name: image-digest
           value: $(tasks.build-and-push.results.IMAGE_DIGEST)
       

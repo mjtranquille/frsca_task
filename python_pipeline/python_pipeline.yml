@@ -13,6 +13,8 @@ spec:
       description: arguments for trivy-scanner
     - name: image-path
       type: string
+    - name: uuid
+      type: string
   workspaces:
     - name: output
       description: output workspace
@@ -28,6 +30,8 @@ spec:
       params:
         - name: url
           value: $(params.repo-url)
+        - name: deleteExisting
+          value: "true"
     - name: lint
       taskRef:
         name: flake8
@@ -59,7 +63,7 @@ spec:
           workspace: output
       params:
         - name: IMAGE
-          value: "ttl.sh/af8e3734-2353-4e6a-893b-220e4b17086/eg:$(tasks.clone-repo.results.commit)"
+          value: "ttl.sh/$(params.uuid)/eg:$(tasks.clone-repo.results.commit)"
     - name: trivy-scan-image
       runAfter: ["build-and-push"]
       taskRef:
@@ -71,7 +75,7 @@ spec:
         - name: ARGS
           value: [image --exit-code 0]
         - name: IMAGE_PATH
-          value: "ttl.sh/af8e3734-2353-4e6a-893b-220e4b17086/eg:$(tasks.clone-repo.results.commit)"
+          value: "ttl.sh/$(params.uuid)/eg:$(tasks.clone-repo.results.commit)"
     - name: syft-sbom
       runAfter: ["trivy-scan-image"]
       taskRef:
@@ -83,6 +87,6 @@ spec:
           workspace: syft-config-map
       params:
         - name: image-ref 
-          value: "ttl.sh/af8e3734-2353-4e6a-893b-220e4b17086/eg:$(tasks.clone-repo.results.commit)"
+          value: "ttl.sh/$(params.uuid)/eg:$(tasks.clone-repo.results.commit)"
         - name: image-digest
           value: $(tasks.build-and-push.results.IMAGE_DIGEST)
