@@ -1,10 +1,10 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  generateName: snsw-pipeline-run-
+  generateName: frsca-pipelinerun-
 spec:
   pipelineRef:
-    name: snsw-git-clone
+    name: frsca-pipeline-example
   podTemplate:
     securityContext:
       fsGroup: 65532

@@ -1,0 +1,40 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: python-trigger-template-example
+spec:
+  params:
+    - name: gitrevision
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: frsca-python-pipelinerun
+      spec:
+        pipelineRef:
+          name: python-pipeline-example
+        podTemplate:
+          securityContext:
+            fsGroup: 65532
+        workspaces:
+          - name: output
+            volumeClaimTemplate:
+              spec: 
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 2Gi
+          - name: git-credentials
+            secret:
+              secretName: git-credentials
+          - name: syft-config-map
+            configMap:
+              name: syft-config-map
+        params:
+          - name: repo-url
+            value: https://gitea-http.gitea:3000/gitea_admin/example-python
+          - name: scan-args
+            value: [fs --exit-code 1]
+          - name: image-path
+            value: "."  

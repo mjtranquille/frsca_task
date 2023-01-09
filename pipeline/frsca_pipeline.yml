@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: snsw-git-clone
+  name: frsca-pipeline-example
 spec:
   description: clone the repository
   params:

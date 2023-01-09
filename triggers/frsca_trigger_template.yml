@@ -1,7 +1,7 @@
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
-  name: snsw-template
+  name: frsca-trigger
 spec:
   params:
     - name: gitrevision
@@ -9,10 +9,10 @@ spec:
     - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
       metadata:
-        generateName: snsw-pipeline-run-
+        generateName: frsca-pipeline-run-
       spec:
         pipelineRef:
-          name: snsw-git-clone
+          name: frsca-pipeline-example
         podTemplate:
           securityContext:
             fsGroup: 65532

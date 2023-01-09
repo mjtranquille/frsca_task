@@ -8,6 +8,6 @@ spec:
     - name: gitea-trigger
       bindings:
         - kind: TriggerBinding
-          ref: snsw-gitea-binding
+          ref: frsca-trigger-binding
       template:
-        ref: snsw-template
+        ref: frsca-trigger
